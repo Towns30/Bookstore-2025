@@ -108,7 +108,7 @@ template <class B, int info_len_> int MemoryRiver<B, info_len_>::GetInfo(int n)
   int result;
   if (n > info_len_)
     return 0;
-  file_.seekg(interOffset + (n - 1) * size_of_B_);
+  file_.seekg(interOffset + (n - 1) * sizeof(int));
   file_.read(reinterpret_cast<char *>(&result), sizeof(int));
   return result;
 }
@@ -116,7 +116,7 @@ template <class B, int info_len_> void MemoryRiver<B, info_len_>::WriteInfo(cons
 {
   if (n > info_len_)
     return;
-  file_.seekp(interOffset + (n - 1) * size_of_B_);
+  file_.seekp(interOffset + (n - 1) * sizeof(int));
   file_.write(reinterpret_cast<const char *>(&tmp), sizeof(int));
 }
 template <class B, int info_len_> int MemoryRiver<B, info_len_>::Write(const B &b)
@@ -128,8 +128,8 @@ template <class B, int info_len_> int MemoryRiver<B, info_len_>::Write(const B &
     return (count_++);
   }
   int pos = free_head_;
-  file_.seekp(interOffset + info_len_ * sizeof(int) + free_head_ * size_of_B_);
   free_head_ = GetNextFree(free_head_);
+  file_.seekp(interOffset + info_len_ * sizeof(int) + pos * size_of_B_);
   file_.write(reinterpret_cast<const char *>(&b), size_of_B_);
   return pos;
 }
