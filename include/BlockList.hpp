@@ -12,7 +12,7 @@
 template <class K, class V> class BlockList
 {
 private:
-  static constexpr int blockSize = 100;
+  static constexpr int blockSize = 500;
   struct KeyValue
   {
     K key_;
