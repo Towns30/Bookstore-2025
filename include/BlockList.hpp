@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <vector>
+#include <utility>
 
 // using K = std::array<char, 64>;
 // using V = int;
@@ -100,6 +101,10 @@ public:
   void Delete(K key, V value);
   // 找键与key相同的元素, 没有返回空vector
   std::vector<V> Find(K key);
+  // 取出所有值
+  std::vector<V> GetAll();
+  // 取出所有键值对
+  std::vector<std::pair<K, V>> GetAllPairs();
 };
 template <class K, class V> void BlockList<K, V>::Initialise(std::string file_name)
 {
@@ -178,6 +183,38 @@ template <class K, class V> std::vector<V> BlockList<K, V>::Find(K key)
     now = GetNext(now);
   }
   return values;
+}
+template <class K, class V> std::vector<V> BlockList<K, V>::GetAll()
+{
+  std::vector<V> result;
+  int head = file_writer_.GetInfo(1);
+  int now = head;
+  while (now != -1)
+  {
+    Block block = GetBlock(now);
+    for (int i = 0; i <= block.size_ - 1; i++)
+    {
+      result.push_back(block.pairs_[i].value_);
+    }
+    now = GetNext(now);
+  }
+  return result;
+}
+template <class K, class V> std::vector<std::pair<K, V>> BlockList<K, V>::GetAllPairs()
+{
+  std::vector<std::pair<K, V>> result;
+  int head = file_writer_.GetInfo(1);
+  int now = head;
+  while (now != -1)
+  {
+    Block block = GetBlock(now);
+    for (int i = 0; i <= block.size_ - 1; i++)
+    {
+      result.emplace_back(block.pairs_[i].key_, block.pairs_[i].value_);
+    }
+    now = GetNext(now);
+  }
+  return result;
 }
 template <class K, class V>
 void BlockList<K, V>::InsertPair(int index, typename BlockList<K, V>::KeyValue inserted_pair)
@@ -294,7 +331,7 @@ template <class K, class V> int BlockList<K, V>::CreateEmptyBlock()
   empty_block.next_index_ = -1; // 把next设为-1
   empty_block.pre_index_ = -1;  // 把前缀节点设为-1
   pos = file_writer_.Write(empty_block);
-  if(head == -1)
+  if (head == -1)
   {
     file_writer_.WriteInfo(pos, 1);
   }
@@ -335,9 +372,9 @@ template <class K, class V> void BlockList<K, V>::SplitBlock(int index)
     now_block.pairs_[i] = {};
   } // 分配pairs
   now_block.size_ = size1;
-  new_block.size_ = size2;      // 更新size
-  now_block.next_index_ = next; // 更新第一个块的next
-  new_block.pre_index_ = index; // 更新第二个块的pre
+  new_block.size_ = size2;           // 更新size
+  now_block.next_index_ = next;      // 更新第一个块的next
+  new_block.pre_index_ = index;      // 更新第二个块的pre
   new_block.next_index_ = next_next; // 更新第二个块的next
   if (next_next != -1)
   {
