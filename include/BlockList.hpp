@@ -105,6 +105,8 @@ public:
   std::vector<V> GetAll();
   // 取出所有键值对
   std::vector<std::pair<K, V>> GetAllPairs();
+  // 计算总键值对个数
+  int CountAllPairs();
 };
 template <class K, class V> void BlockList<K, V>::Initialise(std::string file_name)
 {
@@ -217,6 +219,24 @@ template <class K, class V> std::vector<std::pair<K, V>> BlockList<K, V>::GetAll
   return result;
 }
 template <class K, class V>
+int BlockList<K, V>::CountAllPairs()
+{
+  int count = 0;
+  int head = file_writer_.GetInfo(1);
+  int now = head;
+  if(now == -1)
+  {
+    return 0;
+  }
+  while (now != -1)
+  {
+    count += GetSize(now);
+    // std::cerr << GetSize(now) << ' ' << std::endl;
+    now = GetNext(now);
+  }
+  return count;
+}
+template <class K, class V>
 void BlockList<K, V>::InsertPair(int index, typename BlockList<K, V>::KeyValue inserted_pair)
 {
   Block inserted_block = GetBlock(index);
@@ -261,10 +281,12 @@ void BlockList<K, V>::DeletePair(int index, typename BlockList<K, V>::KeyValue d
   if (pre != -1 && GetSize(pre) + GetSize(index) <= blockSize - 1)
   {
     MergeBlock(pre, index);
+    return;
   }
   else if (next != -1 && GetSize(index) + GetSize(next) <= blockSize - 1)
   {
     MergeBlock(index, next);
+    return;
   }
 }
 template <class K, class V> int BlockList<K, V>::GetSize(int index)
