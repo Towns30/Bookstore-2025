@@ -68,8 +68,10 @@ void AccountManager::Register(const std::string &user_id, const std::string &pas
 void AccountManager::Passwd(const std::string &user_id, const std::string &new_passwd,
                             const std::string &cur_passwd)
 {
-  if (GetCurrentPrivilege() < 1)
-    throw std::runtime_error("Invalid\n"); // 权限检查
+  if (GetCurrentPrivilege() < 1) // 权限检查
+  {
+    throw std::runtime_error("Invalid\n");
+  }
   std::array<char, 61> user_id_array = Utils::StringToArray<61>(user_id);
   auto account_infos = account_data_.Find(user_id_array);
   if (account_infos.empty()) // 没有此user_id
@@ -276,7 +278,7 @@ void BookManager::Modify(const BookModifyPackage &book_modify_package)
     std::set<std::array<char, 61>> check_uniqueness_set;
     for (auto new_keyword : new_keyword_array_vector)
     {
-      if (check_uniqueness_set.count(new_keyword))
+      if (check_uniqueness_set.count(new_keyword))  // `[keyword]` 包含重复信息段则操作失败
       {
         throw std::runtime_error("Invalid\n");
       }
@@ -485,7 +487,7 @@ void BookManager::PrintBook(BookInfo book_info)
   std::string keyword = Utils::ArrayToString<61>(book_info.keyword_);
   long double price = book_info.price_ / 100.0;
   int storage = book_info.storage_;
-  std::cout << isbn << '\t' << bookname << '\t' << author << '\t' << keyword << '\t' << price
+  std::cout << std::fixed << std::setprecision(2) << isbn << '\t' << bookname << '\t' << author << '\t' << keyword << '\t' << price
             << '\t' << storage << '\n';
 }
 void BookManager::ModifyKeywordIndex(std::array<char, 61> cur_keywords_array,
@@ -529,6 +531,10 @@ std::vector<std::array<char, 61>> BookManager::SplitKeywords(std::array<char, 61
     {
       result.push_back(Utils::StringToArray<61>(keyword));
     }
+    else // 附加参数内容为空则操作失败
+    {
+      throw std::runtime_error("Invalid\n");
+    }
     start = end + 1;
     end = keywords_string.find('|', start);
   }
@@ -536,6 +542,10 @@ std::vector<std::array<char, 61>> BookManager::SplitKeywords(std::array<char, 61
   if (!last_keyword.empty())
   {
     result.push_back(Utils::StringToArray<61>(last_keyword));
+  }
+  else // 附加参数内容为空则操作失败
+  {
+    throw std::runtime_error("Invalid\n");
   }
   return result;
 }

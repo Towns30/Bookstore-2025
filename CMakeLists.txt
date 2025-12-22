@@ -20,19 +20,20 @@ execute_process(
         ERROR_QUIET
 )
 
-set(MAIN_SOURCES)
+set(MAIN_SOURCES src/Lexer.cpp
+src/Managers.cpp src/Parser.cpp src/Statement.cpp)
 
 set(TEST_SOURCES tests/test.cpp)
 
 add_executable(code ${MAIN_SOURCES} src/main.cpp)
 
-if (GIT_CONNECTION_STATUS EQUAL 0)
-    FetchContent_MakeAvailable(Catch2)
-    add_executable(mytests ${TEST_SOURCES} ${MAIN_SOURCES})
-    target_link_libraries(mytests PRIVATE Catch2::Catch2WithMain)
-    include(CTest)
-    include(Catch)
-    catch_discover_tests(mytests)
-else ()
-    message(STATUS "Cannot connect to Catch2 repository. Skipping FetchContent.")
-endif ()
+# if (GIT_CONNECTION_STATUS EQUAL 0)
+#     FetchContent_MakeAvailable(Catch2)
+#     add_executable(mytests ${TEST_SOURCES} ${MAIN_SOURCES})
+#     target_link_libraries(mytests PRIVATE Catch2::Catch2WithMain)
+#     include(CTest)
+#     include(Catch)
+#     catch_discover_tests(mytests)
+# else ()
+#     message(STATUS "Cannot connect to Catch2 repository. Skipping FetchContent.")
+# endif ()

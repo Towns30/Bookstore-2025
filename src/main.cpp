@@ -1,67 +1,48 @@
-#include "../include/BlockList.hpp"
-#include <array>
+#include "../include/Lexer.hpp"
+#include "../include/Managers.hpp"
+#include "../include/Parser.hpp"
 #include <iostream>
 #include <string>
-std::array<char, 64> StringToArray(std::string a)
-{
-  std::array<char, 64> array_in;
-  for (int j = 0; j <= 63; j++)
-  {
-    if (j <= a.size() - 1)
-    {
-      array_in[j] = a[j];
-    }
-    else
-    {
-      array_in[j] = 0;
-    }
-  }
-  return array_in;
-}
+#include <vector>
 int main()
 {
-  BlockList<std::array<char, 64>, int> block_list;
-  block_list.Initialise("data");
-  int n;
-  std::cin >> n;
-  for (int i = 0; i <= n - 1; i++)
+  try
   {
-    std::string operation;
-    std::cin >> operation;
-    if (operation == "insert")
+    AccountManager::getInstance();
+    BookManager::getInstance();
+    FinanceManager::getInstance();
+  }
+  catch (const std::runtime_error &e)
+  {
+    std::cout << e.what();
+  }
+  std::string line;
+  Lexer lexer;
+  Parser parser;
+  while (std::getline(std::cin, line))
+  {
+    if (line.empty())
     {
-      std::string key;
-      int value;
-      std::cin >> key >> value;
-      std::array<char, 64> array_in = StringToArray(key);
-      block_list.Insert(array_in, value);
+      continue;
     }
-    else if (operation == "delete")
+    try
     {
-      std::string key;
-      int value;
-      std::cin >> key >> value;
-      std::array<char, 64> array_in = StringToArray(key);
-      block_list.Delete(array_in, value);
+      std::vector<Token> tokens = lexer.Tokenize(line);
+      if (tokens.size() == 1 && tokens[0].type_ == TokenType::BASIC &&
+          (tokens[0].value_ == "quit" || tokens[0].value_ == "exit"))
+      {
+        return 0;
+      }
+      auto statement = parser.ParseLine(tokens);
+      if (statement)
+      {
+        statement->Execute();
+      }
     }
-    else if (operation == "find")
+    catch (const std::runtime_error &e)
     {
-      std::string key;
-      std::cin >> key;
-      std::array<char, 64> array_in = StringToArray(key);
-      std::vector<int> values = block_list.Find(array_in);
-      if (values.empty())
-      {
-        std::cout << "null";
-      }
-      else
-      {
-        for (auto value : values)
-        {
-          std::cout << value << ' ';
-        }
-      }
-      std::cout << "\n";
+      std::cout << e.what();
     }
   }
+  return 0;
 }

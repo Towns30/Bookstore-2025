@@ -10,6 +10,7 @@ struct UserInfo
   std::string user_id_;
   int privilege_;
   int select_book_index_;
+  auto operator<=>(const UserInfo&) const = default;
 };
 
 struct AccountInfo
@@ -17,6 +18,7 @@ struct AccountInfo
   std::array<char, 61> user_name_; // 实际长度: 30
   std::array<char, 61> passwd_;    // 实际长度: 30
   int privilege_;                  // 实际取值范围: 0, 1, 3, 7
+  auto operator<=>(const AccountInfo&) const = default;
 };
 
 struct LogInfo
@@ -25,6 +27,7 @@ struct LogInfo
   std::array<char, 400> source_;
   int privilege_; // 实际取值范围: 0, 1, 3, 7
   bool result_;
+  auto operator<=>(const LogInfo&) const = default;
 };
 
 struct BookInfo
@@ -35,12 +38,14 @@ struct BookInfo
   std::array<char, 61> keyword_;  // 实际长度：60
   long long price_;               // 100 * price
   long long storage_;
+  auto operator<=>(const BookInfo&) const = default;
 };
 
 struct FinanceInfo
 {
   long long income_;  // 100 * income
   long long outcome_; // 100 * outcome
+  auto operator<=>(const FinanceInfo&) const = default;
 };
 struct BookModifyPackage
 {
@@ -49,6 +54,7 @@ struct BookModifyPackage
   std::optional<std::string> author_;
   std::optional<std::string> keyword_;
   std::optional<long long> price_; // 存储 price * 100
+  auto operator<=>(const BookModifyPackage&) const = default;
 };
 struct BookShowPackage
 {
@@ -61,6 +67,7 @@ struct BookShowPackage
     KEYWORD
   } type_ = ALL;
   std::string value_ = "";
+  auto operator<=>(const BookShowPackage&) const = default;
 };
 class LogManager
 {
@@ -95,7 +102,7 @@ public:
   void Show(const BookShowPackage &book_show_package);
   void Buy(const std::string &isbn, const long long &quantity);
   BookManager();
-  ~BookManager();
+  ~BookManager() = default;
 
 private:
   void ShowSortedBooks(std::vector<int> &indexs);
@@ -122,7 +129,7 @@ public:
   }
   AccountManager(const AccountManager &) = delete;
   AccountManager &operator=(const AccountManager &) = delete;
-  void Su(const std::string &user_id, const std::string &passwd = "");
+  void Su(const std::string &user_id, const std::string &passwd);
   void Logout();
   void Register(const std::string &user_id, const std::string &passwd,
                 const std::string &user_name);
@@ -136,7 +143,7 @@ public:
   int GetCurrentSelectedIndex();
   void SetCurrentSelectedIndex(const int &index);
   AccountManager();
-  ~AccountManager();
+  ~AccountManager() = default;
 
 private:
   BlockList<std::array<char, 61>, AccountInfo> account_data_;
@@ -156,7 +163,7 @@ public:
   void ShowFinanceReport(const long long &count);
   void ShowAllFinanceReport();
   FinanceManager();
-  ~FinanceManager();
+  ~FinanceManager() = default;
 
 private:
   BlockList<long long, FinanceInfo> finance_data_;

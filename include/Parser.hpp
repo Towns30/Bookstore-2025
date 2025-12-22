@@ -1,29 +1,32 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
+#include "Lexer.hpp"
 #include "Statement.hpp"
+#include <memory>
 #include <string>
+#include <vector>
 
 class Parser
 {
 public:
-  Statement *ParseLine(std::string text);
+  static std::unique_ptr<Statement> ParseLine(const std::vector<Token> &tokens);
 
 private:
-  Statement *ParseToSu(std::string text);
-  Statement *ParseToLogout(std::string text);
-  Statement *ParseToRegister(std::string text);
-  Statement *ParseToPasswd(std::string text);
-  Statement *ParseToUserAdd(std::string text);
-  Statement *ParseToDelete(std::string text);
-  Statement *ParseToShowBook(std::string text);
-  Statement *ParseToBuy(std::string text);
-  Statement *ParseToSelect(std::string text);
-  Statement *ParseToModify(std::string text);
-  Statement *ParseToImport(std::string text);
-  Statement *ParseToShowFinance(std::string text);
-  Statement *ParseTolog(std::string text);
-  Statement *ParseToReportFinance(std::string text);
-  Statement *ParseToReportEmployee(std::string text);
+  static std::unique_ptr<Statement> ParseToSu(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToLogout(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToRegister(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToPasswd(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToUserAdd(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToDelete(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToShowBook(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToBuy(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToSelect(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToModify(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToImport(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToShowFinance(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToLog(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToReportFinance(const std::vector<Token> &tokens);
+  static std::unique_ptr<Statement> ParseToReportEmployee(const std::vector<Token> &tokens);
 };
 
 #endif

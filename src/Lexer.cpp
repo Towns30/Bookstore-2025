@@ -51,7 +51,7 @@ Token Lexer::GetParameter(const std::string &line, int &pos)
   int start = pos;
   while (pos < line.size() && line[pos] != '=') // 记录，直到等号
   {
-    if ((unsigned char)line[pos] <= 32) // 如果前缀里面有空格，或TAB之类的
+    if ((unsigned char)line[pos] <= 32 || (unsigned char)line[pos] > 126) // 如果前缀里面有空格，或TAB之类的
     {
       throw std::runtime_error("Invalid\n");
     }
@@ -102,7 +102,7 @@ std::string Lexer::GetQuoted(const std::string &line, int &pos)
   else
   {
     std::string get_quoted = line.substr(start, pos - start);
-    pos++; // 跳过又引号，防止skipblank把这个引号误判为关键字
+    pos++; // 跳过右引号，防止skipblank把这个引号误判为关键字
     if (get_quoted == "") // 引号内为空，错误
     {
       throw std::runtime_error("Invalid\n");

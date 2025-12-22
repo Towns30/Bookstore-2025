@@ -11,3 +11,7 @@ requirements.md
 /myresults
 /script.py
 /output.cpp
+/bookstore-tests
+/test.cpp
+/run_tests
+/testcases
