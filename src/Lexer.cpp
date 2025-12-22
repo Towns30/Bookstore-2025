@@ -28,6 +28,10 @@ void Lexer::SkipBlank(const std::string &line, int &pos)
 {
   while (pos < line.size() && (unsigned char)line[pos] <= 32)
   {
+    if((unsigned char)line[pos] == 9)
+    {
+      throw std::runtime_error("Invalid\n");
+    }
     pos++;
   }
 }
