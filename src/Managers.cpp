@@ -44,9 +44,11 @@ void AccountManager::Su(const std::string &user_id, const std::string &passwd)
 }
 void AccountManager::Logout()
 {
-  if (GetCurrentPrivilege() < 1)
-    throw std::runtime_error("Invalid\n"); // 权限检查
-  if (user_session_.empty())               // 登录栈为空
+  if (GetCurrentPrivilege() < 1) // 权限检查
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  if (user_session_.empty()) // 登录栈为空
   {
     throw std::runtime_error("Invalid\n");
   }
@@ -115,10 +117,10 @@ void AccountManager::UserAdd(const std::string &user_id, const std::string &pass
   {
     throw std::runtime_error("Invalid\n");
   }
-  if (GetCurrentPrivilege() < 3)
+  if (GetCurrentPrivilege() < 3) // 权限检查
   {
     throw std::runtime_error("Invalid\n");
-  } // 权限检查
+  }
   std::array<char, 61> user_id_array = Utils::StringToArray<61>(user_id);
   auto account_infos = account_data_.Find(user_id_array);
   if (!account_infos.empty()) // 已经有此user_id
@@ -136,8 +138,10 @@ void AccountManager::UserAdd(const std::string &user_id, const std::string &pass
 }
 void AccountManager::Delete(const std::string &user_id)
 {
-  if (GetCurrentPrivilege() < 7)
-    throw std::runtime_error("Invalid\n"); // 权限检查
+  if (GetCurrentPrivilege() < 7) // 权限检查
+  {
+    throw std::runtime_error("Invalid\n");
+  }
   std::array<char, 61> user_id_array = Utils::StringToArray<61>(user_id);
   auto account_infos = account_data_.Find(user_id_array);
   if (account_infos.empty()) // 没有此user_id
@@ -277,14 +281,18 @@ void BookManager::Modify(const BookModifyPackage &book_modify_package)
     std::string new_keywords = book_modify_package.keyword_.value();
     std::array<char, 61> new_keywords_array = Utils::StringToArray<61>(new_keywords);
     std::vector<std::array<char, 61>> new_keyword_array_vector = SplitKeywords(new_keywords_array);
-    std::set<std::array<char, 61>> check_uniqueness_set;
-    for (auto new_keyword : new_keyword_array_vector)
+    for (int i = 0; i <= new_keyword_array_vector.size() - 1; i++)
     {
-      if (check_uniqueness_set.count(new_keyword)) // `[keyword]` 包含重复信息段则操作失败
+      for (int j = 0; j <= new_keyword_array_vector.size() - 1; j++)
       {
-        throw std::runtime_error("Invalid\n");
+        if (i != j)
+        {
+          if (new_keyword_array_vector[i] == new_keyword_array_vector[j])
+          {
+            throw std::runtime_error("Invalid\n");
+          }
+        }
       }
-      check_uniqueness_set.insert(new_keyword);
     }
   }
 
