@@ -6,6 +6,8 @@
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <ctime>
+
 void AccountManager::Su(const std::string &user_id, const std::string &passwd)
 {
   std::array<char, 61> user_id_array = Utils::StringToArray<61>(user_id);
@@ -278,7 +280,7 @@ void BookManager::Modify(const BookModifyPackage &book_modify_package)
     std::set<std::array<char, 61>> check_uniqueness_set;
     for (auto new_keyword : new_keyword_array_vector)
     {
-      if (check_uniqueness_set.count(new_keyword))  // `[keyword]` 包含重复信息段则操作失败
+      if (check_uniqueness_set.count(new_keyword)) // `[keyword]` 包含重复信息段则操作失败
       {
         throw std::runtime_error("Invalid\n");
       }
@@ -487,8 +489,8 @@ void BookManager::PrintBook(BookInfo book_info)
   std::string keyword = Utils::ArrayToString<61>(book_info.keyword_);
   long double price = book_info.price_ / 100.0;
   int storage = book_info.storage_;
-  std::cout << std::fixed << std::setprecision(2) << isbn << '\t' << bookname << '\t' << author << '\t' << keyword << '\t' << price
-            << '\t' << storage << '\n';
+  std::cout << std::fixed << std::setprecision(2) << isbn << '\t' << bookname << '\t' << author
+            << '\t' << keyword << '\t' << price << '\t' << storage << '\n';
 }
 void BookManager::ModifyKeywordIndex(std::array<char, 61> cur_keywords_array,
                                      std::array<char, 61> new_keywords_array, int now_index)
@@ -522,31 +524,30 @@ std::vector<std::array<char, 61>> BookManager::SplitKeywords(std::array<char, 61
   {
     return result;
   }
-  int start = 0;
-  int end = keywords_string.find('|');
-  while (end != std::string::npos)
+  int pos = 0;
+  std::string keyword;
+  while (pos < keywords_string.size())
   {
-    std::string keyword = keywords_string.substr(start, end - start);
-    if (!keyword.empty())
+    if (keywords_string[pos] == '|')
     {
+      if (keyword.empty())
+      {
+        throw std::runtime_error("Invalid\n");
+      }
       result.push_back(Utils::StringToArray<61>(keyword));
+      keyword.clear();
     }
-    else // 附加参数内容为空则操作失败
+    else
     {
-      throw std::runtime_error("Invalid\n");
+      keyword += keywords_string[pos];
     }
-    start = end + 1;
-    end = keywords_string.find('|', start);
+    pos++;
   }
-  std::string last_keyword = keywords_string.substr(start);
-  if (!last_keyword.empty())
-  {
-    result.push_back(Utils::StringToArray<61>(last_keyword));
-  }
-  else // 附加参数内容为空则操作失败
+  if (keyword.empty())
   {
     throw std::runtime_error("Invalid\n");
   }
+  result.push_back(Utils::StringToArray<61>(keyword));
   return result;
 }
 BookManager::BookManager()
@@ -560,13 +561,13 @@ BookManager::BookManager()
 }
 void FinanceManager::AddFinanceReport(const long long &income, const long long &outcome)
 {
-  total_count_++;
-  finance_data_.Insert(total_count_, FinanceInfo{.income_ = income, .outcome_ = outcome});
+  total_count_1++;
+  finance_data_.Insert(total_count_1, FinanceInfo{.income_ = income, .outcome_ = outcome});
 }
 void FinanceManager::ShowFinanceReport(const long long &count)
 {
   std::vector<std::pair<long double, long double>> result;
-  if (count > total_count_) // `Count` 大于历史交易总笔数时操作失败
+  if (count > total_count_1) // `Count` 大于历史交易总笔数时操作失败
   {
     throw std::runtime_error("Invalid\n");
   }
@@ -577,7 +578,7 @@ void FinanceManager::ShowFinanceReport(const long long &count)
   }
   long double total_income = 0.0;
   long double total_outcome = 0.0;
-  for (int i = total_count_ - count + 1; i <= total_count_; i++)
+  for (int i = total_count_1 - count + 1; i <= total_count_1; i++)
   {
     std::vector<FinanceInfo> finance_infos = finance_data_.Find(i);
     long double income = finance_infos[0].income_ / 100.0;
@@ -590,15 +591,75 @@ void FinanceManager::ShowFinanceReport(const long long &count)
 }
 void FinanceManager::ShowAllFinanceReport() // 无 `Count` 参数时，输出所有交易之总额
 {
-  if (total_count_ == 0)
+  if (total_count_1 == 0)
   {
     std::cout << "+ 0.00 - 0.00\n";
     return;
   }
-  ShowFinanceReport(total_count_);
+  ShowFinanceReport(total_count_1);
 }
 FinanceManager::FinanceManager()
 {
   finance_data_.Initialise("finance_data");
-  total_count_ = finance_data_.CountAllPairs(); // 获取外存中的交易总笔数
+  finance_report_data_.Initialise("finance_report_data");
+  total_count_1 = finance_data_.CountAllPairs(); // 获取外存中的交易总笔数
+  total_count_2 = finance_report_data_.CountAllPairs();
+}
+std::array<char, 61> AccountManager::GetCurrentUserID()
+{
+  if (user_session_.empty())
+  {
+    return Utils::StringToArray<61>("Guest");
+  }
+  return Utils::StringToArray<61>(user_session_[user_session_.size() - 1].user_id_);
+}
+void LogManager::AddSource(const std::string &source)
+{
+  total_count_++;
+  LogInfo log_info;
+  log_info.privilege_ = AccountManager::getInstance().GetCurrentPrivilege();
+  log_info.result_ = false;
+  log_info.source_ = Utils::StringToArray<200>(source);
+  log_info.user_id_ = AccountManager::getInstance().GetCurrentUserID();
+  log_data_.Insert(total_count_, log_info);
+}
+void LogManager::SetResult()
+{
+  int index = total_count_;
+  auto log_infos = log_data_.Find(index);
+  assert(log_infos.size() < 2);
+  auto log_info = log_infos[0];
+  log_data_.Delete(index, log_info);
+  log_info.result_ = true;
+  log_data_.Insert(index, log_info);
+}
+void LogManager::Log()
+{
+  auto log_datas = log_data_.GetAllPairs();
+  std::cout << "index" << '\t' << "user_id" << '\t' << "privilege" << '\t' << "operation" << '\t' << "result" << std::endl;
+  for(auto pair : log_datas)
+  {
+    std::cout << pair.first  << '\t' << Utils::ArrayToString<61>(pair.second.user_id_) << '\t' << pair.second.privilege_ << '\t' << Utils::ArrayToString<200>(pair.second.source_) << '\t' << ((pair.second.result_) ? "true" : "false") << std::endl;
+  }
+}
+LogManager::LogManager()
+{
+  log_data_.Initialise("log_data");
+  total_count_ = log_data_.CountAllPairs();
+}
+void LogManager::ReportEmployee()
+{
+  auto log_datas = log_data_.GetAllPairs();
+  std::cout << "index" << '\t' << "user_id" << '\t' << "privilege" << '\t' << "operation" << '\t' << "result" << std::endl;
+  for(auto pair : log_datas)
+  {
+    if(pair.second.privilege_ == 3) // 只输出店员的
+    {
+      std::cout << pair.first  << '\t' << Utils::ArrayToString<61>(pair.second.user_id_) << '\t' << pair.second.privilege_ << '\t' << Utils::ArrayToString<200>(pair.second.source_) << '\t' << ((pair.second.result_) ? "true" : "false") << std::endl;
+    }
+  }
+}
+void FinanceManager::ReportFinance()
+{
+  
 }

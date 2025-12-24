@@ -145,5 +145,27 @@ void ShowFinanceStatement::Execute()
     FinanceManager::getInstance().ShowFinanceReport(count_);
   }
 }
-void LogStatement::Execute() {}
-void ReportFinanceStatement::Execute() {}
+void LogStatement::Execute() 
+{
+  if(AccountManager::getInstance().GetCurrentPrivilege() != 7)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  LogManager::getInstance().Log();
+}
+void ReportFinanceStatement::Execute() 
+{
+  if(AccountManager::getInstance().GetCurrentPrivilege() != 7)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  FinanceManager::getInstance().ReportFinance();
+}
+void ReportEmployeeStatement::Execute()
+{
+  if(AccountManager::getInstance().GetCurrentPrivilege() != 7)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  LogManager::getInstance().ReportEmployee();
+}

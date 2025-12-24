@@ -8,23 +8,35 @@ namespace Utils
 {
 template <int N> std::array<char, N> StringToArray(const std::string &a)
 {
-  std::array<char, N> array_in;
+  std::array<char, N> result;
   for (int j = 0; j <= N - 1; j++)
   {
     if (j < a.size())
     {
-      array_in[j] = a[j];
+      result[j] = a[j];
     }
     else
     {
-      array_in[j] = 0;
+      result[j] = '\0';
     }
   }
-  return array_in;
+  return result;
 }
 template <int N> std::string ArrayToString(const std::array<char, N> &a)
 {
-  return std::string(a.data());
+  std::string result;
+  for(int i = 0; i <= N - 1; i++)
+  {
+    if(a[i] != '\0')
+    {
+      result += a[i];
+    }
+    else
+    {
+      return result;
+    }
+  }
+  return result;
 }
 inline long long Pow(long long x, long long y)
 {
@@ -392,6 +404,5 @@ inline void CheckCount(const std::string &count)
     }
   }
 }
-
 } // namespace Utils
 #endif

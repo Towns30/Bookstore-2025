@@ -5,12 +5,21 @@
 #include <optional>
 #include <string>
 
+struct FinanceReport
+{
+  std::array<char, 61> user_id_;
+  std::array<char, 61> isbn_;
+  long long income_;
+  long long outcome_;
+  auto operator<=>(const FinanceReport &) const = default;
+};
+
 struct UserInfo
 {
   std::string user_id_;
   int privilege_;
   int select_book_index_;
-  auto operator<=>(const UserInfo&) const = default;
+  auto operator<=>(const UserInfo &) const = default;
 };
 
 struct AccountInfo
@@ -18,16 +27,16 @@ struct AccountInfo
   std::array<char, 61> user_name_; // 实际长度: 30
   std::array<char, 61> passwd_;    // 实际长度: 30
   int privilege_;                  // 实际取值范围: 0, 1, 3, 7
-  auto operator<=>(const AccountInfo&) const = default;
+  auto operator<=>(const AccountInfo &) const = default;
 };
 
 struct LogInfo
 {
   std::array<char, 61> user_id_; // 实际长度：30
-  std::array<char, 400> source_;
+  std::array<char, 200> source_;
   int privilege_; // 实际取值范围: 0, 1, 3, 7
   bool result_;
-  auto operator<=>(const LogInfo&) const = default;
+  auto operator<=>(const LogInfo &) const = default;
 };
 
 struct BookInfo
@@ -38,14 +47,14 @@ struct BookInfo
   std::array<char, 61> keyword_;  // 实际长度：60
   long long price_;               // 100 * price
   long long storage_;
-  auto operator<=>(const BookInfo&) const = default;
+  auto operator<=>(const BookInfo &) const = default;
 };
 
 struct FinanceInfo
 {
   long long income_;  // 100 * income
   long long outcome_; // 100 * outcome
-  auto operator<=>(const FinanceInfo&) const = default;
+  auto operator<=>(const FinanceInfo &) const = default;
 };
 struct BookModifyPackage
 {
@@ -54,7 +63,7 @@ struct BookModifyPackage
   std::optional<std::string> author_;
   std::optional<std::string> keyword_;
   std::optional<long long> price_; // 存储 price * 100
-  auto operator<=>(const BookModifyPackage&) const = default;
+  auto operator<=>(const BookModifyPackage &) const = default;
 };
 struct BookShowPackage
 {
@@ -67,7 +76,7 @@ struct BookShowPackage
     KEYWORD
   } type_ = ALL;
   std::string value_ = "";
-  auto operator<=>(const BookShowPackage&) const = default;
+  auto operator<=>(const BookShowPackage &) const = default;
 };
 class LogManager
 {
@@ -79,11 +88,16 @@ public:
   }
   LogManager(const LogManager &) = delete;
   LogManager &operator=(const LogManager &) = delete;
-
-private:
+  void AddSource(const std::string &source);
+  void SetResult();
+  void Log();
+  void ReportEmployee();
+  
+  private:
   LogManager();
-  ~LogManager();
+  ~LogManager() {};
   BlockList<long long, LogInfo> log_data_;
+  long long total_count_;
 };
 
 class BookManager // index均为1_based
@@ -142,6 +156,7 @@ public:
   int GetCurrentPrivilege();
   int GetCurrentSelectedIndex();
   void SetCurrentSelectedIndex(const int &index);
+  std::array<char, 61> GetCurrentUserID();
   AccountManager();
   ~AccountManager() = default;
 
@@ -162,11 +177,14 @@ public:
   void AddFinanceReport(const long long &income, const long long &outcome);
   void ShowFinanceReport(const long long &count);
   void ShowAllFinanceReport();
+  void ReportFinance();
   FinanceManager();
   ~FinanceManager() = default;
 
 private:
   BlockList<long long, FinanceInfo> finance_data_;
-  long long total_count_;
+  BlockList<long long, FinanceReport> finance_report_data_;
+  long long total_count_1;
+  long long total_count_2;
 };
 #endif

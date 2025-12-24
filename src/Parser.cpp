@@ -440,6 +440,27 @@ std::unique_ptr<Statement> Parser::ParseToShowFinance(const std::vector<Token> &
     return std::make_unique<ShowFinanceStatement>(count_int);
   }
 }
-std::unique_ptr<Statement> Parser::ParseToLog(const std::vector<Token> &tokens) {}
-std::unique_ptr<Statement> Parser::ParseToReportFinance(const std::vector<Token> &tokens) {}
-std::unique_ptr<Statement> Parser::ParseToReportEmployee(const std::vector<Token> &tokens) {}
+std::unique_ptr<Statement> Parser::ParseToLog(const std::vector<Token> &tokens) 
+{
+  if(tokens.size() != 1)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  return std::make_unique<LogStatement>();
+}
+std::unique_ptr<Statement> Parser::ParseToReportFinance(const std::vector<Token> &tokens) 
+{
+  if(tokens.size() != 2)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  return std::make_unique<ReportFinanceStatement>();
+}
+std::unique_ptr<Statement> Parser::ParseToReportEmployee(const std::vector<Token> &tokens) 
+{
+  if(tokens.size() != 2)
+  {
+    throw std::runtime_error("Invalid\n");
+  }
+  return std::make_unique<ReportEmployeeStatement>();
+}
