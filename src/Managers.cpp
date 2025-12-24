@@ -2,11 +2,11 @@
 #include "../include/Utils.hpp"
 #include <array>
 #include <cassert>
+#include <ctime>
 #include <iostream>
 #include <set>
 #include <stdexcept>
 #include <string>
-#include <ctime>
 
 void AccountManager::Su(const std::string &user_id, const std::string &passwd)
 {
@@ -365,6 +365,7 @@ void BookManager::Import(const long long &quantity, const long long total_cost)
   book_data_.Delete(now_index, cur_book_info);
   book_data_.Insert(now_index, new_book_info);
   FinanceManager::getInstance().AddFinanceReport(0, total_cost);
+  FinanceManager::getInstance().AddImportFinance(total_cost);
 }
 void BookManager::Show(const BookShowPackage &book_show_package)
 {
@@ -460,6 +461,7 @@ void BookManager::Buy(const std::string &isbn, const long long &quantity)
   FinanceManager::getInstance().AddFinanceReport(total_price, 0);
   std::cout << std::fixed << std::setprecision(2) << static_cast<long double>(total_price) / 100.0
             << "\n";
+  FinanceManager::getInstance().AddBuyFinance(isbn, total_price);
 }
 int BookManager::CreatNewBook(const std::string &isbn)
 {
@@ -636,10 +638,16 @@ void LogManager::SetResult()
 void LogManager::Log()
 {
   auto log_datas = log_data_.GetAllPairs();
-  std::cout << "index" << '\t' << "user_id" << '\t' << "privilege" << '\t' << "operation" << '\t' << "result" << std::endl;
-  for(auto pair : log_datas)
+  std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
+            << "privilege" << std::setw(40) << "operation" << std::setw(13) << "result"
+            << std::endl;
+  for (auto pair : log_datas)
   {
-    std::cout << pair.first  << '\t' << Utils::ArrayToString<61>(pair.second.user_id_) << '\t' << pair.second.privilege_ << '\t' << Utils::ArrayToString<200>(pair.second.source_) << '\t' << ((pair.second.result_) ? "true" : "false") << std::endl;
+    std::cout << std::left << std::setw(7) << pair.first << std::setw(31)
+              << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
+              << pair.second.privilege_ << std::setw(40)
+              << Utils::ArrayToString<200>(pair.second.source_) << std::setw(13)
+              << ((pair.second.result_) ? "true" : "false") << std::endl;
   }
 }
 LogManager::LogManager()
@@ -650,16 +658,54 @@ LogManager::LogManager()
 void LogManager::ReportEmployee()
 {
   auto log_datas = log_data_.GetAllPairs();
-  std::cout << "index" << '\t' << "user_id" << '\t' << "privilege" << '\t' << "operation" << '\t' << "result" << std::endl;
-  for(auto pair : log_datas)
+  std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
+            << "privilege" << std::setw(40) << "operation" << std::setw(13) << "result"
+            << std::endl;
+  for (auto pair : log_datas)
   {
-    if(pair.second.privilege_ == 3) // 只输出店员的
+    if (pair.second.privilege_ == 3) // 只输出店员的
     {
-      std::cout << pair.first  << '\t' << Utils::ArrayToString<61>(pair.second.user_id_) << '\t' << pair.second.privilege_ << '\t' << Utils::ArrayToString<200>(pair.second.source_) << '\t' << ((pair.second.result_) ? "true" : "false") << std::endl;
+      std::cout << std::left << std::setw(7) << pair.first << std::setw(31)
+                << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
+                << pair.second.privilege_ << std::setw(40)
+                << Utils::ArrayToString<200>(pair.second.source_) << std::setw(13)
+                << ((pair.second.result_) ? "true" : "false") << std::endl;
     }
   }
 }
 void FinanceManager::ReportFinance()
 {
-  
+  auto finance_report_datas = finance_report_data_.GetAllPairs();
+  std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
+            << "isbn" << std::setw(10) << "income" << std::setw(10) << "outcome" << std::endl;
+  for (auto pair : finance_report_datas)
+  {
+    std::cout << std::left << std::setw(7) << pair.first << std::setw(31)
+              << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
+              << Utils::ArrayToString<61>(pair.second.isbn_) << std::fixed << std::setprecision(2)
+              << std::setw(10) << (pair.second.income_ / 100.0) << std::setw(10)
+              << (pair.second.outcome_ / 100.0) << std::endl;
+  }
+}
+void FinanceManager::AddBuyFinance(std::string isbn, const long long &income)
+{
+  total_count_2++;
+  FinanceReport finance_report;
+  finance_report.income_ = income;
+  finance_report.isbn_ = Utils::StringToArray<61>(isbn);
+  finance_report.outcome_ = 0;
+  finance_report.user_id_ = AccountManager::getInstance().GetCurrentUserID();
+  finance_report_data_.Insert(total_count_2, finance_report);
+}
+void FinanceManager::AddImportFinance(const long long &outcome)
+{
+  total_count_2++;
+  FinanceReport finance_report;
+  int index = AccountManager::getInstance().GetCurrentSelectedIndex();
+  auto isbn = BookManager::getInstance().book_data_.Find(index)[0].isbn_;
+  finance_report.income_ = 0;
+  finance_report.isbn_ = isbn;
+  finance_report.outcome_ = outcome;
+  finance_report.user_id_ = AccountManager::getInstance().GetCurrentUserID();
+  finance_report_data_.Insert(total_count_2, finance_report);
 }

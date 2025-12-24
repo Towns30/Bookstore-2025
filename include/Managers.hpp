@@ -92,10 +92,10 @@ public:
   void SetResult();
   void Log();
   void ReportEmployee();
-  
-  private:
+
+private:
   LogManager();
-  ~LogManager() {};
+  ~LogManager(){};
   BlockList<long long, LogInfo> log_data_;
   long long total_count_;
 };
@@ -117,6 +117,7 @@ public:
   void Buy(const std::string &isbn, const long long &quantity);
   BookManager();
   ~BookManager() = default;
+  BlockList<int, BookInfo> book_data_;
 
 private:
   void ShowSortedBooks(std::vector<int> &indexs);
@@ -125,7 +126,7 @@ private:
   void ModifyKeywordIndex(std::array<char, 61> cur_keywords_array,
                           std::array<char, 61> new_keywords_array, int now_index);
   std::vector<std::array<char, 61>> SplitKeywords(std::array<char, 61> keywords);
-  BlockList<int, BookInfo> book_data_;
+
   BlockList<std::array<char, 61>, int> isbn_index_;
   BlockList<std::array<char, 61>, int> bookname_index_;
   BlockList<std::array<char, 61>, int> author_index_;
@@ -178,6 +179,8 @@ public:
   void ShowFinanceReport(const long long &count);
   void ShowAllFinanceReport();
   void ReportFinance();
+  void AddBuyFinance(std::string isbn, const long long &income);
+  void AddImportFinance(const long long &outcome);
   FinanceManager();
   ~FinanceManager() = default;
 
