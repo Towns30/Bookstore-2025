@@ -6,12 +6,12 @@
 class Lexer
 {
 public:
-  static std::vector<Token> Tokenize(const std::string &line);
+  std::vector<Token> Tokenize(const std::string &line);
 
 private:
-  static void SkipBlank(const std::string &line, int &pos); // 跳过空格
-  static Token GetBasic(const std::string &line, int &pos);
-  static Token GetParameter(const std::string &line, int &pos);
-  static std::string GetQuoted(const std::string &line, int &pos);
+  void SkipBlank(const std::string &line, int &pos); // 跳过空格
+  Token GetBasic(const std::string &line, int &pos);
+  Token GetParameter(const std::string &line, int &pos);
+  std::string GetQuoted(const std::string &line, int &pos);
 };
 #endif
