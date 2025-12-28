@@ -4,7 +4,6 @@
 #include <cassert>
 #include <ctime>
 #include <iostream>
-#include <set>
 #include <stdexcept>
 #include <string>
 
@@ -190,7 +189,7 @@ AccountManager::AccountManager()
   if (root_infos.empty()) // root未创建
   {
     AccountInfo root_info;
-    root_info.user_name_ = Utils::StringToArray<61>("root");
+    root_info.user_name_ = Utils::StringToArray<61>("Towns");
     root_info.passwd_ = Utils::StringToArray<61>("sjtu");
     root_info.privilege_ = 7;
     account_data_.Insert(root_array, root_info);
@@ -334,7 +333,6 @@ void BookManager::Modify(const BookModifyPackage &book_modify_package)
     std::string new_keywords = book_modify_package.keyword_.value();
     std::array<char, 61> new_keywords_array = Utils::StringToArray<61>(new_keywords);
     std::vector<std::array<char, 61>> new_keyword_array_vector = SplitKeywords(new_keywords_array);
-    std::set<std::array<char, 61>> check_uniqueness_set;
     std::vector<std::array<char, 61>> cur_keyword_array_vector = SplitKeywords(book_info.keyword_);
     for (auto cur_keyword : cur_keyword_array_vector)
     {
@@ -507,15 +505,15 @@ void BookManager::ModifyKeywordIndex(std::array<char, 61> cur_keywords_array,
 {
   std::vector<std::array<char, 61>> cur_keywords_array_vector = SplitKeywords(cur_keywords_array);
   std::vector<std::array<char, 61>> new_keywords_array_vector = SplitKeywords(new_keywords_array);
-  std::set<std::string> check_uniqueness_set;
-  for (auto new_keyword : new_keywords_array_vector) // `[keyword]` 包含重复信息段则操作失败
+  for (int i = 0; i <= new_keywords_array_vector.size() - 1; i++) // `[keyword]` 包含重复信息段则操作失败
   {
-    std::string new_keyword_string = Utils::ArrayToString<61>(new_keyword);
-    if (check_uniqueness_set.count(new_keyword_string))
+    for(int j = 0; j <= new_keywords_array_vector.size() - 1; j++)
     {
-      throw std::runtime_error("Invalid\n");
+      if(i != j && new_keywords_array_vector[i] == new_keywords_array_vector[j])
+      {
+        throw std::runtime_error("Invalid\n");
+      }
     }
-    check_uniqueness_set.insert(new_keyword_string);
   }
   for (auto cur_keyword : cur_keywords_array_vector)
   {
@@ -645,6 +643,7 @@ void LogManager::SetResult()
 }
 void LogManager::Log()
 {
+  SetResult();
   auto log_datas = log_data_.GetAllPairs();
   std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
             << "privilege" << std::setw(40) << "operation" << std::setw(13) << "result"

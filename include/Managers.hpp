@@ -118,6 +118,7 @@ public:
   BookManager();
   ~BookManager() = default;
   BlockList<int, BookInfo> book_data_;
+  
 
 private:
   void ShowSortedBooks(std::vector<int> &indexs);
