@@ -647,14 +647,14 @@ void LogManager::Log()
   auto log_datas = log_data_.GetAllPairs();
   std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
             << "privilege" << std::setw(40) << "operation" << std::setw(13) << "result"
-            << std::endl;
+            << '\n';
   for (auto pair : log_datas)
   {
     std::cout << std::left << std::setw(7) << pair.first << std::setw(31)
               << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
               << pair.second.privilege_ << std::setw(40)
               << Utils::ArrayToString<200>(pair.second.source_) << std::setw(13)
-              << ((pair.second.result_) ? "true" : "false") << std::endl;
+              << ((pair.second.result_) ? "true" : "false") << '\n';
   }
 }
 LogManager::LogManager()
@@ -667,7 +667,7 @@ void LogManager::ReportEmployee()
   auto log_datas = log_data_.GetAllPairs();
   std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
             << "privilege" << std::setw(40) << "operation" << std::setw(13) << "result"
-            << std::endl;
+            << '\n';
   for (auto pair : log_datas)
   {
     if (pair.second.privilege_ == 3) // 只输出店员的
@@ -676,7 +676,7 @@ void LogManager::ReportEmployee()
                 << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
                 << pair.second.privilege_ << std::setw(40)
                 << Utils::ArrayToString<200>(pair.second.source_) << std::setw(13)
-                << ((pair.second.result_) ? "true" : "false") << std::endl;
+                << ((pair.second.result_) ? "true" : "false") << '\n';
     }
   }
 }
@@ -684,14 +684,14 @@ void FinanceManager::ReportFinance()
 {
   auto finance_report_datas = finance_report_data_.GetAllPairs();
   std::cout << std::left << std::setw(7) << "index" << std::setw(31) << "user_id" << std::setw(15)
-            << "isbn" << std::setw(10) << "income" << std::setw(10) << "outcome" << std::endl;
+            << "isbn" << std::setw(10) << "income" << std::setw(10) << "outcome" << '\n';
   for (auto pair : finance_report_datas)
   {
     std::cout << std::left << std::setw(7) << pair.first << std::setw(31)
               << Utils::ArrayToString<61>(pair.second.user_id_) << std::setw(15)
               << Utils::ArrayToString<61>(pair.second.isbn_) << std::fixed << std::setprecision(2)
               << std::setw(10) << (pair.second.income_ / 100.0) << std::setw(10)
-              << (pair.second.outcome_ / 100.0) << std::endl;
+              << (pair.second.outcome_ / 100.0) << '\n';
   }
 }
 void FinanceManager::AddBuyFinance(std::string isbn, const long long &income)
